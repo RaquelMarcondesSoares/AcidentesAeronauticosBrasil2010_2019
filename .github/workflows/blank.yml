@@ -1,0 +1,53 @@
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import scipy.stats as st
+
+from collections import Counter
+import statistics as static
+def numero_em_cima(rects, ax): 
+    for rect in rects:
+        height = rect.get_height()
+        ax.annotate('{}'.format(height),
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(0, 3),  
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+dados = pd.read_csv('/content/ocorrencia.csv')
+dic_regioes = {'Nordeste': ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE'],
+                'Norte': ['AM', 'RR', 'AP', 'PA', 'TO', 'RO', 'AC'],
+                'Centro Oeste': ['MT', 'MS', 'GO'], 
+                'Sudeste': ['SP', 'RJ', 'ES', 'MG'],
+                'Sul': ['PR', 'RS', 'SC']}
+tipos = ['ACIDENTE', 'INCIDENTE','INCIDENTE GRAVE']
+dic_01 = {i: [ len([k for k in list(dados.loc[dados['tipo'] == i, ['estado']]['estado'])
+                    if k in dic_regioes[j]]) for j in dic_regioes.keys()] for i in tipos}
+
+dic_01['Região'] = list(dic_regioes.keys())
+dados_regioes = pd.DataFrame(dic_01)
+plt.style.use("ggplot")
+fig, ax = plt.subplots(figsize=(14, 6))
+
+width = 0.25
+r1 = np.arange(5)
+r2 = [ x + width for x in r1]
+r3 = [ x + width for x in r2]
+
+rects1 = ax.bar(r1, dados_regioes['ACIDENTE'], width, label='ACIDENTE')
+rects2 = ax.bar(r2, dados_regioes['INCIDENTE'], width, label='INCIDENTE')
+rects3 = ax.bar(r3, dados_regioes['INCIDENTE GRAVE'], width, label='INCIDENTE GRAVE')
+
+ax.set_ylabel('Ocorrências')
+ax.set_title('REGIÕES\nACIDENTE vs INCIDENTE (2010-2019)')
+ax.set_xticks(r2)
+ax.set_xticklabels(dados_regioes['Região'])
+ax.legend()
+
+numero_em_cima(rects1, ax)
+numero_em_cima(rects2, ax)
+numero_em_cima(rects3, ax)
+
+plt.show()
+
